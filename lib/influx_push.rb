@@ -25,6 +25,7 @@ class InfluxPush
 
   def run
     until queue.closed?
+      # Blocks until a record is available or the queue is closed.
       record = queue.pop
       push(record) if record
     end

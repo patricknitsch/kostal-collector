@@ -99,7 +99,7 @@ Config = Struct.new(*KEYS, keyword_init: true) do
       influx_token
       influx_measurement
     ].each do |key|
-      self[key].to_s.empty? && raise(ArgumentError, "#{key.to_s.upcase} environment variable is missing")
+      self[key].to_s.empty? && raise(ArgumentError, "#{key.to_s.upcase} is required")
     end
 
     validate_url!(influx_url)

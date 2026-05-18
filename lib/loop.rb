@@ -75,8 +75,11 @@ class Loop
   end
 
   def close_queue
-    until queue.empty?
-      logger.info "Waiting for #{queue.size} records to be pushed to InfluxDB"
+    loop do
+      pending = queue.size
+      break if pending.zero?
+
+      logger.info "Waiting for #{pending} records to be pushed to InfluxDB"
       sleep 1
     end
 
