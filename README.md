@@ -49,7 +49,7 @@ Optional environment variables:
 - `INFLUX_SCHEMA` (default: `http`)
 - `INFLUX_HOST` (default: `influxdb`)
 - `INFLUX_PORT` (default: `8086`)
-- `INFLUX_MEASUREMENT` (default: `KOSTAL`)
+- `INFLUX_MEASUREMENT_KOSTAL` (default: `KOSTAL`)
 
 ## Docker
 

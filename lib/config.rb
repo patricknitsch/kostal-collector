@@ -50,7 +50,7 @@ Config = Struct.new(*KEYS, keyword_init: true) do
       influx_token: ENV.fetch('INFLUX_TOKEN', nil),
       influx_org: ENV.fetch('INFLUX_ORG', nil),
       influx_bucket: ENV.fetch('INFLUX_BUCKET', nil),
-      influx_measurement: ENV.fetch('INFLUX_MEASUREMENT', nil),
+      influx_measurement: ENV.fetch('INFLUX_MEASUREMENT_KOSTAL', nil),
     }
     new(**env_options, **)
   end
