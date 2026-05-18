@@ -50,6 +50,7 @@ Optional environment variables:
 - `INFLUX_HOST` (default: `influxdb`)
 - `INFLUX_PORT` (default: `8086`)
 - `INFLUX_MEASUREMENT_KOSTAL` (default: `KOSTAL`)
+- `KOSTAL_METRICS` — custom metric definitions, one per line as `dxs_id:field_name:type` (valid types: `float`, `integer`, `string`, `boolean`). If not set, the built-in defaults are used.
 
 ## Docker
 

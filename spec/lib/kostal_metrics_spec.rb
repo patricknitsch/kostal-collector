@@ -39,6 +39,53 @@ describe KostalMetrics do
     end
   end
 
+  describe '.from_env' do
+    context 'without KOSTAL_METRICS set' do
+      it 'returns DEFAULT_METRICS' do
+        expect(described_class.from_env).to eq(described_class::DEFAULT_METRICS)
+      end
+    end
+
+    context 'with KOSTAL_METRICS set' do
+      around do |example|
+        ENV['KOSTAL_METRICS'] = "33556736:dc_input_power:float\n16780032:status:integer"
+        example.run
+        ENV.delete('KOSTAL_METRICS')
+      end
+
+      it 'parses dxs_id, field and type from each line' do
+        metrics = described_class.from_env
+        expect(metrics.length).to eq(2)
+        expect(metrics[0]).to eq(name: 'dc_input_power', dxs_id: 33_556_736, field: :dc_input_power, type: :float)
+        expect(metrics[1]).to eq(name: 'status', dxs_id: 16_780_032, field: :status, type: :integer)
+      end
+    end
+
+    context 'with an invalid entry' do
+      around do |example|
+        ENV['KOSTAL_METRICS'] = '33556736:dc_input_power'
+        example.run
+        ENV.delete('KOSTAL_METRICS')
+      end
+
+      it 'raises ArgumentError' do
+        expect { described_class.from_env }.to raise_error(ArgumentError, /Invalid KOSTAL_METRICS entry/)
+      end
+    end
+
+    context 'with an unknown type' do
+      around do |example|
+        ENV['KOSTAL_METRICS'] = '33556736:dc_input_power:number'
+        example.run
+        ENV.delete('KOSTAL_METRICS')
+      end
+
+      it 'raises ArgumentError' do
+        expect { described_class.from_env }.to raise_error(ArgumentError, /Unknown type/)
+      end
+    end
+  end
+
   describe 'DEFAULT_METRICS' do
     it 'contains all required IDs' do
       names = described_class::DEFAULT_METRICS.map { |metric| metric[:name] }

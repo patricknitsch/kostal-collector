@@ -11,7 +11,33 @@ module KostalMetrics
     { name: 'ID_Status', dxs_id: 16_780_032, field: :status, type: :integer },
   ].freeze
 
+  VALID_TYPES = %i[float integer string boolean].freeze
+
   module_function
+
+  def from_env
+    raw = ENV.fetch('KOSTAL_METRICS', nil)
+    return DEFAULT_METRICS if raw.nil? || raw.strip.empty?
+
+    raw.strip.split(/[\r\n]+/).filter_map do |line|
+      line = line.strip
+      next if line.empty?
+
+      parts = line.split(':')
+      unless parts.length == 3
+        raise ArgumentError, "Invalid KOSTAL_METRICS entry: #{line.inspect} (expected dxs_id:field:type)"
+      end
+
+      dxs_id_str, field_str, type_str = parts.map(&:strip)
+      dxs_id = Integer(dxs_id_str)
+      type = type_str.to_sym
+      unless VALID_TYPES.include?(type)
+        raise ArgumentError, "Unknown type #{type_str.inspect} in KOSTAL_METRICS (valid: #{VALID_TYPES.join(', ')})"
+      end
+
+      { name: field_str, dxs_id:, field: field_str.to_sym, type: }
+    end
+  end
 
   def to_lookup(metrics, entries)
     values_by_id = entries.each_with_object({}) do |entry, hash|
