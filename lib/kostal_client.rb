@@ -10,12 +10,14 @@ class KostalClient
   end
 
   def fetch
+    logger.info "Fetching from #{uri}"
     response = http_get.call(uri)
     code = response.code.to_i
     unless code.between?(200, 299)
       raise "Unexpected response from Kostal API: #{response.code} - #{response.body}"
     end
 
+    logger.info "Kostal responded: HTTP #{response.code}"
     payload = JSON.parse(response.body)
     entries = payload.fetch('dxsEntries', [])
 
@@ -25,6 +27,10 @@ class KostalClient
   private
 
   attr_reader :config, :http_get
+
+  def logger
+    config.logger
+  end
 
   def uri
     joined_ids = config.metrics.map { |metric| metric.fetch(:dxs_id) }.join(',')
