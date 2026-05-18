@@ -1,34 +1,47 @@
 require 'flux_writer'
 require 'forwardable'
 require 'influxdb-client'
-require 'kostal_metrics'
 
 class InfluxPush
   extend Forwardable
 
   def_delegators :config, :logger
 
-  def initialize(config:, flux_writer: nil)
+  def initialize(config:, queue:, flux_writer: nil, retry_sleep: 5)
     @config = config
+    @queue = queue
     @flux_writer = flux_writer || FluxWriter.new(config)
+    @retry_sleep = retry_sleep
   end
 
-  attr_reader :config, :flux_writer
+  attr_reader :config, :queue, :flux_writer, :retry_sleep
 
   def ready?
     flux_writer.ready?
-  rescue StandardError => e
-    logger&.error("InfluxDB not ready: #{e.message}")
-    false
   end
 
-  def push(values_by_name)
-    fields = KostalMetrics.to_influx_fields(config.metrics, values_by_name)
-    return if fields.empty?
+  def run
+    until queue.closed?
+      record = queue.pop
+      push(record) if record
+    end
+  end
 
-    flux_writer.push(fields:, measure_time: Time.now.to_i)
-    logger&.info('Successfully pushed record to InfluxDB')
+  private
+
+  def push(record)
+    flux_writer.push(record)
+    logger.info "Successfully pushed record ##{record.id} to InfluxDB"
   rescue StandardError => e
-    logger&.error("Error while pushing record to InfluxDB: #{e.message}")
+    error_handling(record, e)
+    sleep(retry_sleep)
+  end
+
+  def error_handling(record, error)
+    logger.error "Error while pushing record ##{record.id} to InfluxDB: #{error.message}"
+    return if queue.closed?
+
+    queue << record
+    logger.info "The record has been queued. Will retry to push #{queue.size} records later."
   end
 end

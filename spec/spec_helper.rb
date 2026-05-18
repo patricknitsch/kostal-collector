@@ -4,6 +4,7 @@ require 'rspec'
 require 'config'
 
 def build_config(**overrides)
+  logger = overrides.delete(:logger)
   defaults = {
     host: 'example.com',
     protocol: 'http',
@@ -17,8 +18,9 @@ def build_config(**overrides)
     influx_org: 'org',
     influx_bucket: 'bucket',
     influx_measurement: 'KOSTAL',
-    logger: nil,
   }
 
-  Config.new(**defaults.merge(overrides))
+  config = Config.new(**defaults.merge(overrides))
+  config.logger = logger if logger
+  config
 end

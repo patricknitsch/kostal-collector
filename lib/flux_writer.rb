@@ -9,9 +9,9 @@ class FluxWriter
     influx_client.ping.status == 'ok'
   end
 
-  def push(fields:, measure_time:)
+  def push(record)
     write_api.write(
-      data: point(fields:, measure_time:),
+      data: point(record),
       bucket: config.influx_bucket,
       org: config.influx_org,
     )
@@ -19,11 +19,11 @@ class FluxWriter
 
   private
 
-  def point(fields:, measure_time:)
+  def point(record)
     InfluxDB2::Point.new(
       name: config.influx_measurement,
-      time: measure_time,
-      fields:,
+      time: record.measure_time,
+      fields: record.to_hash,
     )
   end
 

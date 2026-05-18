@@ -3,6 +3,13 @@
 Collect data from a Kostal Piko inverter via `dxs.json`.
 The collected values are pushed to InfluxDB.
 
+## Runtime structure (analogous to senec-collector)
+
+- `Loop`: orchestrates pull/push threads and Influx readiness wait
+- `KostalPull`: fetches inverter data and queues typed records
+- `InfluxPush`: reads queued records and writes to InfluxDB
+- `FluxWriter`: low-level Influx client writer
+
 ## Supported metrics
 
 The collector uses an extendable metric definition with `name` + `dxs_id` + `field` + `type`.
@@ -23,8 +30,15 @@ Currently configured:
 
 ```bash
 bundle install
-KOSTAL_HOST=192.168.178.10 bundle exec ruby app.rb
+cp .env.example .env
+bundle exec ruby app.rb
 ```
+
+Required environment variables:
+
+- `INFLUX_TOKEN`
+- `INFLUX_ORG`
+- `INFLUX_BUCKET`
 
 Optional environment variables:
 
@@ -35,7 +49,19 @@ Optional environment variables:
 - `INFLUX_SCHEMA` (default: `http`)
 - `INFLUX_HOST` (default: `influxdb`)
 - `INFLUX_PORT` (default: `8086`)
-- `INFLUX_TOKEN`
-- `INFLUX_ORG`
-- `INFLUX_BUCKET`
 - `INFLUX_MEASUREMENT` (default: `KOSTAL`)
+
+## Docker
+
+Build and run:
+
+```bash
+docker build -t kostal-collector .
+docker run --rm --env-file .env --network host kostal-collector
+```
+
+Or via compose:
+
+```bash
+docker compose up -d
+```

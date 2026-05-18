@@ -1,0 +1,8 @@
+.bundle
+.env
+.env.*
+.git
+.github
+vendor
+spec
+compose.yml
