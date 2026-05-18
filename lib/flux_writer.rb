@@ -6,7 +6,11 @@ class FluxWriter
   attr_reader :config
 
   def ready?
-    influx_client.ping.status == 'ok'
+    status = influx_client.ping.status
+    return true if status == 'ok'
+
+    config.logger.error "\nInfluxDB ping returned unexpected status: #{status}"
+    false
   end
 
   def push(record)
