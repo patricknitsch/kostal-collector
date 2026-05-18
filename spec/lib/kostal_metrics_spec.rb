@@ -20,6 +20,25 @@ describe KostalMetrics do
     end
   end
 
+  describe '.to_influx_fields' do
+    it 'maps names to configured field names and casts field types' do
+      metrics = [
+        { name: 'ID_POWER', dxs_id: 11, field: :power, type: :float },
+        { name: 'ID_STATUS', dxs_id: 12, field: :status, type: :integer },
+      ]
+
+      values = {
+        'ID_POWER' => '1234.5',
+        'ID_STATUS' => '2',
+      }
+
+      expect(described_class.to_influx_fields(metrics, values)).to eq(
+        power: 1234.5,
+        status: 2,
+      )
+    end
+  end
+
   describe 'DEFAULT_METRICS' do
     it 'contains all required IDs' do
       names = described_class::DEFAULT_METRICS.map { |metric| metric[:name] }
@@ -35,6 +54,12 @@ describe KostalMetrics do
         'ID_P3Leistung',
         'ID_Status',
       )
+    end
+
+    it 'defines field and type for all metrics' do
+      described_class::DEFAULT_METRICS.each do |metric|
+        expect(metric).to include(:field, :type)
+      end
     end
   end
 end
