@@ -18,9 +18,6 @@ class InfluxPush
 
   def ready?
     flux_writer.ready?
-  rescue StandardError => e
-    logger.error "\nInfluxDB not ready: #{e.message}"
-    false
   end
 
   def run

@@ -1,3 +1,6 @@
+require 'net/http'
+require 'uri'
+
 class FluxWriter
   def initialize(config)
     @config = config
@@ -6,10 +9,13 @@ class FluxWriter
   attr_reader :config
 
   def ready?
-    status = influx_client.ping.status
-    return true if status == 'ok'
+    response = Net::HTTP.get_response(URI("#{config.influx_url}/ping"))
+    return true if response.code.to_i == 204
 
-    config.logger.error "\nInfluxDB ping returned unexpected status: #{status}"
+    config.logger.error "\nInfluxDB ping failed: HTTP #{response.code} #{response.message}"
+    false
+  rescue SocketError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::EHOSTUNREACH => e
+    config.logger.error "\nInfluxDB unreachable: #{e.message}"
     false
   end
 
