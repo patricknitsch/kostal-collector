@@ -4,7 +4,8 @@ require 'loop'
 describe Loop do
   let(:logger) { double('Logger', info: nil, error: nil) }
   let(:config) { build_config(interval: 1, logger:) }
-  let(:kostal_pull) { instance_double(KostalPull, next: true, count: 1) }
+  let(:record) { instance_double(KostalRecord) }
+  let(:kostal_pull) { instance_double(KostalPull, next: record, count: 1) }
   let(:influx_push) { instance_double(InfluxPush, ready?: true, run: true) }
   let(:loop_instance) { described_class.new(config:, max_count: 1, max_wait: 0) }
 

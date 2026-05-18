@@ -103,6 +103,8 @@ Config = Struct.new(*KEYS, keyword_init: true) do
       raise(ArgumentError, "#{key_name} is required") if self[key].to_s.empty?
     end
 
+    raise(ArgumentError, 'INFLUX_PORT must be greater than 0') unless influx_port.positive?
+
     validate_url!(influx_url)
   end
 

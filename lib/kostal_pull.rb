@@ -15,7 +15,8 @@ class KostalPull
   def next
     values_by_name = client.fetch
     fields = KostalMetrics.to_influx_fields(config.metrics, values_by_name)
-    record = KostalRecord.new(@count += 1, { measure_time: Time.now.to_i, **fields })
+    @count += 1
+    record = KostalRecord.new(@count, { measure_time: Time.now.to_i, **fields })
     queue << record
     logger.info "Got record ##{record.id}"
     record
