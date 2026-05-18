@@ -1,17 +1,53 @@
 module KostalMetrics
   DEFAULT_METRICS = [
     { name: 'ID_DCEingangsleistung', dxs_id: 33_556_736, field: :dc_input_power, type: :float },
-    { name: 'ID_Ausgangsleistung', dxs_id: 67_109_120, field: :output_power, type: :float },
-    { name: 'ID_DC1Leistung', dxs_id: 33_555_203, field: :dc1_power, type: :float },
-    { name: 'ID_DC2Leistung', dxs_id: 33_555_459, field: :dc2_power, type: :float },
-    { name: 'ID_DC3Leistung', dxs_id: 33_555_715, field: :dc3_power, type: :float },
-    { name: 'ID_P1Leistung', dxs_id: 67_109_379, field: :p1_power, type: :float },
-    { name: 'ID_P2Leistung', dxs_id: 67_109_635, field: :p2_power, type: :float },
-    { name: 'ID_P3Leistung', dxs_id: 67_109_891, field: :p3_power, type: :float },
+    { name: 'ID_Ausgangsleistung', dxs_id: 67_109_120, field: :ac_output_power, type: :float },
+    { name: 'ID_DC1Leistung', dxs_id: 33_555_203, field: :dc_1_power, type: :float },
+    { name: 'ID_DC2Leistung', dxs_id: 33_555_459, field: :dc_2_power, type: :float },
+    { name: 'ID_DC3Leistung', dxs_id: 33_555_715, field: :dc_3_power, type: :float },
+    { name: 'ID_P1Leistung', dxs_id: 67_109_379, field: :ac_1_power, type: :float },
+    { name: 'ID_P2Leistung', dxs_id: 67_109_635, field: :ac_2_power, type: :float },
+    { name: 'ID_P3Leistung', dxs_id: 67_109_891, field: :ac_3_power, type: :float },
     { name: 'ID_Status', dxs_id: 16_780_032, field: :status, type: :integer },
   ].freeze
 
+  VALID_TYPES = %i[float integer string boolean].freeze
+
+  TYPE_ALIASES = { 'int' => :integer, 'bool' => :boolean }.freeze
+
   module_function
+
+  def from_env
+    raw = ENV.fetch('KOSTAL_METRICS', nil)
+    return DEFAULT_METRICS if raw.nil? || raw.strip.empty?
+
+    overrides = parse_metrics(raw)
+    by_id = overrides.each_with_object({}) { |m, h| h[m[:dxs_id]] = m }
+
+    merged = DEFAULT_METRICS.map { |d| by_id.delete(d[:dxs_id]) || d }
+    merged + by_id.values
+  end
+
+  def parse_metrics(raw)
+    raw.strip.split(/[\s,]+/).filter_map do |entry|
+      entry = entry.strip
+      next if entry.empty?
+
+      parts = entry.split(':')
+      unless parts.length == 3
+        raise ArgumentError, "Invalid KOSTAL_METRICS entry: #{entry.inspect} (expected dxs_id:field:type)"
+      end
+
+      dxs_id_str, field_str, type_str = parts
+      dxs_id = Integer(dxs_id_str)
+      type = TYPE_ALIASES.fetch(type_str, type_str.to_sym)
+      unless VALID_TYPES.include?(type)
+        raise ArgumentError, "Unknown type #{type_str.inspect} in KOSTAL_METRICS (valid: #{VALID_TYPES.join(', ')})"
+      end
+
+      { name: field_str, dxs_id:, field: field_str.to_sym, type: }
+    end
+  end
 
   def to_lookup(metrics, entries)
     values_by_id = entries.each_with_object({}) do |entry, hash|

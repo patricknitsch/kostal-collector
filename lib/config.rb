@@ -43,14 +43,14 @@ Config = Struct.new(*KEYS, keyword_init: true) do
       protocol: ENV.fetch('KOSTAL_PROTOCOL', nil),
       port: ENV.fetch('KOSTAL_PORT', nil),
       interval: ENV.fetch('KOSTAL_INTERVAL', nil),
-      metrics: KostalMetrics::DEFAULT_METRICS,
+      metrics: KostalMetrics.from_env,
       influx_schema: ENV.fetch('INFLUX_SCHEMA', nil),
       influx_host: ENV.fetch('INFLUX_HOST', nil),
       influx_port: ENV.fetch('INFLUX_PORT', nil),
       influx_token: ENV.fetch('INFLUX_TOKEN', nil),
       influx_org: ENV.fetch('INFLUX_ORG', nil),
       influx_bucket: ENV.fetch('INFLUX_BUCKET', nil),
-      influx_measurement: ENV.fetch('INFLUX_MEASUREMENT', nil),
+      influx_measurement: ENV.fetch('INFLUX_MEASUREMENT_KOSTAL', nil),
     }
     new(**env_options, **)
   end

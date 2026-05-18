@@ -18,9 +18,6 @@ class InfluxPush
 
   def ready?
     flux_writer.ready?
-  rescue StandardError => e
-    logger.error "InfluxDB not ready: #{e.message}"
-    false
   end
 
   def run
@@ -42,7 +39,12 @@ class InfluxPush
   end
 
   def error_handling(record, error)
-    logger.error "Error while pushing record ##{record.id} to InfluxDB: #{error.message}"
+    logger.error "Error while pushing record ##{record.id} to InfluxDB: #{error.class}: #{error.message}"
+    logger.error "  URL:         #{config.influx_url}"
+    logger.error "  Org:         #{config.influx_org}"
+    logger.error "  Bucket:      #{config.influx_bucket}"
+    logger.error "  Measurement: #{config.influx_measurement}"
+    logger.error "  Token:       #{config.influx_token.to_s[0, 8]}..."
     return if queue.closed?
 
     queue << record

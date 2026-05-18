@@ -29,6 +29,7 @@ describe KostalClient do
       values = client.fetch
 
       expect(requested_uri.to_s).to include('/api/dxs.json?dxsEntries=')
+      expect(requested_uri.to_s).to include('&dxsEntries=')
       expect(values['ID_Ausgangsleistung']).to eq(1234)
       expect(values['ID_Status']).to eq(0)
     end

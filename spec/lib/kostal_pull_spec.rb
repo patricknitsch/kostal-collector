@@ -16,7 +16,7 @@ describe KostalPull do
       record = kostal_pull.next
 
       expect(record.id).to eq(1)
-      expect(record.to_hash).to include(measure_time: 1_700_000_000, output_power: 1234.0, status: 2)
+      expect(record.to_hash).to include(measure_time: 1_700_000_000, ac_output_power: 1234.0, status: 2)
       expect(queue.pop).to eq(record)
     end
   end
