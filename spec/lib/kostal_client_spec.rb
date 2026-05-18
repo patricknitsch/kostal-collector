@@ -3,7 +3,16 @@ require 'config'
 require 'kostal_client'
 
 describe KostalClient do
-  let(:config) { Config.from_env.with(host: 'example.com', port: 80) }
+  let(:config) do
+    Config.new(
+      host: 'example.com',
+      protocol: 'http',
+      port: 80,
+      interval: 10,
+      metrics: KostalMetrics::DEFAULT_METRICS,
+      logger: nil,
+    )
+  end
 
   describe '#fetch' do
     it 'requests configured dxs IDs and maps response values' do

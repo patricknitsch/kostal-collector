@@ -12,7 +12,9 @@ class KostalClient
   def fetch
     response = http_get.call(uri)
     code = response.code.to_i
-    raise "Unexpected response from Kostal API: #{response.code}" unless code.between?(200, 299)
+    unless code.between?(200, 299)
+      raise "Unexpected response from Kostal API: #{response.code} - #{response.body}"
+    end
 
     payload = JSON.parse(response.body)
     entries = payload.fetch('dxsEntries', [])

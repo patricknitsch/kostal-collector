@@ -15,8 +15,7 @@ logger.info 'https://github.com/patricknitsch/kostal-collector'
 logger.info 'Based on https://github.com/solectrus/senec-collector'
 logger.info "\n"
 
-config = Config.from_env
-config.logger = logger
+config = Config.from_env.with(logger:)
 
 logger.info "Using Ruby #{RUBY_VERSION} on platform #{RUBY_PLATFORM}"
 logger.info "Pulling from Kostal at #{config.base_url} every #{config.interval} seconds"
