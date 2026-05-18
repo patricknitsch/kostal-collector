@@ -4,9 +4,12 @@ require 'uri'
 require 'kostal_metrics'
 
 class KostalClient
-  def initialize(config:, http_get: Net::HTTP.method(:get_response))
+  OPEN_TIMEOUT = 5
+  READ_TIMEOUT = 10
+
+  def initialize(config:, http_get: nil)
     @config = config
-    @http_get = http_get
+    @http_get = http_get || method(:http_get_with_timeout)
   end
 
   def fetch
@@ -35,5 +38,13 @@ class KostalClient
   def uri
     joined_ids = config.metrics.map { |metric| metric.fetch(:dxs_id) }.join(',')
     URI("#{config.base_url}/api/dxs.json?dxsEntries=#{joined_ids}")
+  end
+
+  def http_get_with_timeout(uri)
+    Net::HTTP.start(uri.host, uri.port,
+                    open_timeout: OPEN_TIMEOUT,
+                    read_timeout: READ_TIMEOUT) do |http|
+      http.request(Net::HTTP::Get.new(uri.request_uri))
+    end
   end
 end
