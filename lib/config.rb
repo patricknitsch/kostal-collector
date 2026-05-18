@@ -84,7 +84,7 @@ Config = Struct.new(*KEYS, keyword_init: true) do
   end
 
   def validate!
-    interval.positive? || throw("KOSTAL_INTERVAL is invalid: #{interval}")
+    interval.positive? || raise(ArgumentError, "KOSTAL_INTERVAL is invalid: #{interval}")
     validate_url!(base_url)
     validate_influx_settings!
   end
@@ -99,7 +99,7 @@ Config = Struct.new(*KEYS, keyword_init: true) do
       influx_token
       influx_measurement
     ].each do |key|
-      self[key].to_s.empty? && throw("#{key.to_s.upcase} is missing")
+      self[key].to_s.empty? && raise(ArgumentError, "#{key.to_s.upcase} is missing")
     end
 
     validate_url!(influx_url)
@@ -107,6 +107,8 @@ Config = Struct.new(*KEYS, keyword_init: true) do
 
   def validate_url!(url)
     uri = URI.parse(url)
-    (uri.is_a?(URI::HTTP) && !uri.host.to_s.empty?) || throw("URL is invalid: #{url}")
+    (uri.is_a?(URI::HTTP) && !uri.host.to_s.empty?) || raise(ArgumentError, "URL is invalid: #{url}")
+  rescue URI::InvalidURIError
+    raise ArgumentError, "URL is invalid: #{url}"
   end
 end
