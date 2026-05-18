@@ -13,24 +13,26 @@ module KostalMetrics
 
   VALID_TYPES = %i[float integer string boolean].freeze
 
+  TYPE_ALIASES = { 'int' => :integer, 'bool' => :boolean }.freeze
+
   module_function
 
   def from_env
     raw = ENV.fetch('KOSTAL_METRICS', nil)
     return DEFAULT_METRICS if raw.nil? || raw.strip.empty?
 
-    raw.strip.split(/[\r\n]+/).filter_map do |line|
-      line = line.strip
-      next if line.empty?
+    raw.strip.split(/[\s,]+/).filter_map do |entry|
+      entry = entry.strip
+      next if entry.empty?
 
-      parts = line.split(':')
+      parts = entry.split(':')
       unless parts.length == 3
-        raise ArgumentError, "Invalid KOSTAL_METRICS entry: #{line.inspect} (expected dxs_id:field:type)"
+        raise ArgumentError, "Invalid KOSTAL_METRICS entry: #{entry.inspect} (expected dxs_id:field:type)"
       end
 
-      dxs_id_str, field_str, type_str = parts.map(&:strip)
+      dxs_id_str, field_str, type_str = parts
       dxs_id = Integer(dxs_id_str)
-      type = type_str.to_sym
+      type = TYPE_ALIASES.fetch(type_str, type_str.to_sym)
       unless VALID_TYPES.include?(type)
         raise ArgumentError, "Unknown type #{type_str.inspect} in KOSTAL_METRICS (valid: #{VALID_TYPES.join(', ')})"
       end
