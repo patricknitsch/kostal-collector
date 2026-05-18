@@ -3,3 +3,5 @@ services:
     image: ghcr.io/patricknitsch/kostal-collector:latest
     env_file: .env
     restart: unless-stopped
+    extra_hosts:
+      - "kostal.pv:192.168.178.XXX"

@@ -36,8 +36,8 @@ class KostalClient
   end
 
   def uri
-    joined_ids = config.metrics.map { |metric| metric.fetch(:dxs_id) }.join(',')
-    URI("#{config.base_url}/api/dxs.json?dxsEntries=#{joined_ids}")
+    query = config.metrics.map { |m| "dxsEntries=#{m.fetch(:dxs_id)}" }.join('&')
+    URI("#{config.base_url}/api/dxs.json?#{query}")
   end
 
   def http_get_with_timeout(uri)
