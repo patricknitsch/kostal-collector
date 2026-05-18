@@ -25,6 +25,7 @@ logger.info "Using Ruby #{RUBY_VERSION} on platform #{RUBY_PLATFORM}"
 logger.info "Pushing to InfluxDB at #{config.influx_url}, " \
        "bucket #{config.influx_bucket}, " \
        "measurement #{config.influx_measurement}"
+logger.info "Pulling from Kostal at #{config.base_url} every #{config.interval}s"
 logger.info "\n"
 
 Loop.start(config:)

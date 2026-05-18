@@ -18,7 +18,7 @@ class KostalPull
     @count += 1
     record = KostalRecord.new(@count, { measure_time: Time.now.to_i, **fields })
     queue << record
-    logger.info "Got record ##{record.id}"
+    logger.info "Record ##{record.id}: #{fields.map { |k, v| "#{k}=#{v}" }.join(', ')}"
     record
   end
 
