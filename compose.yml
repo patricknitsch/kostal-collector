@@ -1,8 +1,27 @@
 services:
   kostal-collector:
     image: ghcr.io/patricknitsch/kostal-collector:latest
-    env_file: .env
     restart: unless-stopped
+    environment:
+      KOSTAL_HOST:
+      KOSTAL_PROTOCOL:
+      KOSTAL_PORT:
+      KOSTAL_INTERVAL:
+      INFLUX_BUCKET:
+      INFLUX_HOST: influxdb
+      INFLUX_MEASUREMENT_KOSTAL:
+      INFLUX_ORG:
+      INFLUX_TOKEN: ${INFLUX_TOKEN_WRITE}
+      KOSTAL_METRICS: |
+        33556736:dc_input_power:float
+        67109120:ac_output_power:float
+        33555203:dc_1_power:float
+        33555459:dc_2_power:float
+        33555715:dc_3_power:float
+        67109379:ac_1_power:float
+        67109635:ac_2_power:float
+        67109891:ac_3_power:float
+        16780032:status:integer
 
 networks:
   default:
