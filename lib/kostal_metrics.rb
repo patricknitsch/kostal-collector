@@ -1,13 +1,13 @@
 module KostalMetrics
   DEFAULT_METRICS = [
     { name: 'ID_DCEingangsleistung', dxs_id: 33_556_736, field: :dc_input_power, type: :float },
-    { name: 'ID_Ausgangsleistung', dxs_id: 67_109_120, field: :output_power, type: :float },
-    { name: 'ID_DC1Leistung', dxs_id: 33_555_203, field: :dc1_power, type: :float },
-    { name: 'ID_DC2Leistung', dxs_id: 33_555_459, field: :dc2_power, type: :float },
-    { name: 'ID_DC3Leistung', dxs_id: 33_555_715, field: :dc3_power, type: :float },
-    { name: 'ID_P1Leistung', dxs_id: 67_109_379, field: :p1_power, type: :float },
-    { name: 'ID_P2Leistung', dxs_id: 67_109_635, field: :p2_power, type: :float },
-    { name: 'ID_P3Leistung', dxs_id: 67_109_891, field: :p3_power, type: :float },
+    { name: 'ID_Ausgangsleistung', dxs_id: 67_109_120, field: :ac_output_power, type: :float },
+    { name: 'ID_DC1Leistung', dxs_id: 33_555_203, field: :dc_1_power, type: :float },
+    { name: 'ID_DC2Leistung', dxs_id: 33_555_459, field: :dc_2_power, type: :float },
+    { name: 'ID_DC3Leistung', dxs_id: 33_555_715, field: :dc_3_power, type: :float },
+    { name: 'ID_P1Leistung', dxs_id: 67_109_379, field: :ac_1_power, type: :float },
+    { name: 'ID_P2Leistung', dxs_id: 67_109_635, field: :ac_2_power, type: :float },
+    { name: 'ID_P3Leistung', dxs_id: 67_109_891, field: :ac_3_power, type: :float },
     { name: 'ID_Status', dxs_id: 16_780_032, field: :status, type: :integer },
   ].freeze
 
