@@ -21,6 +21,14 @@ module KostalMetrics
     raw = ENV.fetch('KOSTAL_METRICS', nil)
     return DEFAULT_METRICS if raw.nil? || raw.strip.empty?
 
+    overrides = parse_metrics(raw)
+    by_id = overrides.each_with_object({}) { |m, h| h[m[:dxs_id]] = m }
+
+    merged = DEFAULT_METRICS.map { |d| by_id.delete(d[:dxs_id]) || d }
+    merged + by_id.values
+  end
+
+  def parse_metrics(raw)
     raw.strip.split(/[\s,]+/).filter_map do |entry|
       entry = entry.strip
       next if entry.empty?

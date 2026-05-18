@@ -46,18 +46,33 @@ describe KostalMetrics do
       end
     end
 
-    context 'with KOSTAL_METRICS set' do
+    context 'with KOSTAL_METRICS overriding one default entry' do
       around do |example|
-        ENV['KOSTAL_METRICS'] = "33556736:dc_input_power:float\n16780032:status:integer"
+        ENV['KOSTAL_METRICS'] = '33556736:my_power:float'
         example.run
         ENV.delete('KOSTAL_METRICS')
       end
 
-      it 'parses dxs_id, field and type from each line' do
+      it 'merges override with remaining defaults' do
         metrics = described_class.from_env
-        expect(metrics.length).to eq(2)
-        expect(metrics[0]).to eq(name: 'dc_input_power', dxs_id: 33_556_736, field: :dc_input_power, type: :float)
-        expect(metrics[1]).to eq(name: 'status', dxs_id: 16_780_032, field: :status, type: :integer)
+        expect(metrics.length).to eq(described_class::DEFAULT_METRICS.length)
+        overridden = metrics.find { |m| m[:dxs_id] == 33_556_736 }
+        expect(overridden).to eq(name: 'my_power', dxs_id: 33_556_736, field: :my_power, type: :float)
+        expect(metrics.map { |m| m[:dxs_id] }).to include(67_109_120, 16_780_032)
+      end
+    end
+
+    context 'with KOSTAL_METRICS adding a new dxs_id' do
+      around do |example|
+        ENV['KOSTAL_METRICS'] = '99999999:extra_field:integer'
+        example.run
+        ENV.delete('KOSTAL_METRICS')
+      end
+
+      it 'appends the new entry after defaults' do
+        metrics = described_class.from_env
+        expect(metrics.length).to eq(described_class::DEFAULT_METRICS.length + 1)
+        expect(metrics.last).to eq(name: 'extra_field', dxs_id: 99_999_999, field: :extra_field, type: :integer)
       end
     end
 
