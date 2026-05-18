@@ -2,5 +2,4 @@ services:
   kostal-collector:
     image: ghcr.io/patricknitsch/kostal-collector:latest
     env_file: .env
-    network_mode: host
     restart: unless-stopped
