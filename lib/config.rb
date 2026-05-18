@@ -99,7 +99,8 @@ Config = Struct.new(*KEYS, keyword_init: true) do
       influx_token
       influx_measurement
     ].each do |key|
-      self[key].to_s.empty? && raise(ArgumentError, "#{key.to_s.upcase} is required")
+      key_name = key.to_s.upcase
+      raise(ArgumentError, "#{key_name} is required") if self[key].to_s.empty?
     end
 
     validate_url!(influx_url)
@@ -107,7 +108,7 @@ Config = Struct.new(*KEYS, keyword_init: true) do
 
   def validate_url!(url)
     uri = URI.parse(url)
-    (uri.is_a?(URI::HTTP) && !uri.host.to_s.empty?) || raise(ArgumentError, "URL is invalid: #{url}")
+    raise(ArgumentError, "URL is invalid: #{url}") unless uri.is_a?(URI::HTTP) && !uri.host.to_s.empty?
   rescue URI::InvalidURIError
     raise ArgumentError, "URL is invalid: #{url}"
   end
