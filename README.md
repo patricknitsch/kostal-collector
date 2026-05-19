@@ -3,6 +3,7 @@
 # Kostal collector
 
 Collects data from a Kostal Piko inverter via the local `dxs.json` API and pushes it to InfluxDB 2
+The concept and structure based on the **Senec-Collector** and the great work of the hole project **SOLECTRUS** from **ledermann**.
 
 ## Requirements
 
