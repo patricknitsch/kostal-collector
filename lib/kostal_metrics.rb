@@ -73,6 +73,17 @@ module KostalMetrics
     { name: 'Analogeingang4',         dxs_id: 167_773_185,  field: :Analogeingang4,         type: :float },
   ].freeze
 
+  # DXS IDs excluded when KOSTAL_CONSUMPTION=false (no battery, no home/self-consumption, no self-sufficiency)
+  CONSUMPTION_DXS_IDS = [
+    83_888_128, 83_887_872,                          # Eigenverbrauch, Hausverbrauch
+    251_659_010, 251_659_266, 251_659_278, 251_659_279, # Hausverbrauch_d, Eigenverbrauch_d, quote_d, Autarkie_d
+    251_659_009, 251_659_265, 251_659_280, 251_659_281, # Hausverbrauch_G, Eigenverbrauch_G, quote_G, Autarkie_G
+    33_556_226, 33_556_227, 33_556_228,              # Batterie SOC, Status, Strom
+    33_556_229, 33_556_230, 33_556_238,              # Batterie Spannung, Leistung, Temp
+    83_886_336, 83_886_592, 83_886_848,              # HausverbrauchSolar/Batterie/Netz
+    83_887_106, 83_887_362, 83_887_618,              # HausverbrauchPhase 1/2/3
+  ].freeze
+
   EMPTY_METRICS = [].freeze
 
   VALID_TYPES = %i[float integer string boolean].freeze
@@ -80,6 +91,10 @@ module KostalMetrics
   TYPE_ALIASES = { 'int' => :integer, 'bool' => :boolean }.freeze
 
   module_function
+
+  def without_consumption(metrics)
+    metrics.reject { |m| CONSUMPTION_DXS_IDS.include?(m[:dxs_id]) }
+  end
 
   def from_env
     raw = ENV.fetch('KOSTAL_METRICS', nil)

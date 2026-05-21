@@ -48,7 +48,14 @@ Config = Struct.new(*KEYS, keyword_init: true) do
 
   def self.from_env(**)
     output = ENV.fetch('OUTPUT_TARGET', 'influxdb')
-    metrics = output == 'mqtt' ? KostalMetrics::SUPPORTED_METRICS : KostalMetrics.from_env
+    consumption = ENV.fetch('KOSTAL_CONSUMPTION', 'true') != 'false'
+
+    metrics = if output == 'mqtt'
+      base = KostalMetrics::SUPPORTED_METRICS
+      consumption ? base : KostalMetrics.without_consumption(base)
+    else
+      KostalMetrics.from_env
+    end
 
     env_options = {
       host: ENV.fetch('KOSTAL_HOST', nil),

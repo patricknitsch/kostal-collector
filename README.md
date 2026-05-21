@@ -48,8 +48,8 @@ Two output targets are supported:
 - `OUTPUT_TARGET=influxdb` (default)
 - `OUTPUT_TARGET=mqtt`
 
-Metrics are sent only if they are explicitly configured in `KOSTAL_METRICS`.
-There are no default metric-to-field mappings.
+For InfluxDB, metrics are sent only if explicitly configured via `KOSTAL_METRICS`.
+For MQTT, all supported metrics are published automatically (see `KOSTAL_CONSUMPTION` to reduce the set).
 
 ## Environment variables
 
@@ -61,6 +61,7 @@ There are no default metric-to-field mappings.
 | `KOSTAL_PROTOCOL` | `http` | Protocol (`http` or `https`) |
 | `KOSTAL_PORT` | `80` | Port |
 | `KOSTAL_INTERVAL` | `10` | Polling interval in seconds |
+| `KOSTAL_CONSUMPTION` | `true` | Set to `false` to exclude home consumption, self-sufficiency, and battery metrics (for generation-only inverters without storage) |
 
 ### InfluxDB
 
@@ -93,9 +94,9 @@ Published topics are `<MQTT_TOPIC_PREFIX>/measure_time` and `<MQTT_TOPIC_PREFIX>
 |---|---|---|
 | `OUTPUT_TARGET` | `influxdb` | Output target: `influxdb` or `mqtt` |
 
-### Custom metrics
+### Custom metrics (InfluxDB only)
 
-`KOSTAL_METRICS` defines the complete set of exported fields.  
+`KOSTAL_METRICS` defines the complete set of exported fields for InfluxDB output.  
 Each entry has the format `dxs_id:field_name:type`, separated by commas or spaces.
 
 Valid types: `float`, `integer`, `string`, `boolean` (aliases: `int`, `bool`)
@@ -108,9 +109,66 @@ KOSTAL_METRICS=33556736:dc_power:float,67109120:ac_power:float,16780032:status:i
 
 ### Supported DXS IDs
 
-The adapter can read the following DXS IDs (example mapping names from Kostal API docs):
+The adapter can read the following DXS IDs (MQTT publishes all of them unless filtered by `KOSTAL_CONSUMPTION`):
 
-`33556736, 67109120, 83888128, 16780032, 251658754, 251659010, 251659266, 251659278, 251659279, 251658753, 251659009, 251659265, 251659280, 251659281, 251658496, 33555202, 33555201, 33555203, 33555458, 33555457, 33555459, 83886336, 83886592, 83886848, 83887106, 83887362, 83887618, 67110400, 67110656, 67109378, 67109377, 67109379, 67109634, 67109633, 67109635, 67109890, 67109889, 67109891`
+| DXS ID | Field | Excluded by `KOSTAL_CONSUMPTION=false` |
+|---|---|---|
+| `33556736` | DCEingangGesamt | |
+| `67109120` | Ausgangsleistung | |
+| `83888128` | Eigenverbrauch | ✓ |
+| `83887872` | Hausverbrauch | ✓ |
+| `16780032` | Status | |
+| `16777984` | WRName | |
+| `16779267` | WRArtikel | |
+| `16780544` | WRSeriennummer | |
+| `251658754` | Ertrag_d | |
+| `251659010` | Hausverbrauch_d | ✓ |
+| `251659266` | Eigenverbrauch_d | ✓ |
+| `251659278` | Eigenverbrauchsquote_d | ✓ |
+| `251659279` | Autarkiegrad_d | ✓ |
+| `251658753` | Ertrag_G | |
+| `251659009` | Hausverbrauch_G | ✓ |
+| `251659265` | Eigenverbrauch_G | ✓ |
+| `251659280` | Eigenverbrauchsquote_G | ✓ |
+| `251659281` | Autarkiegrad_G | ✓ |
+| `251658496` | Betriebszeit | |
+| `33555202` | DC1Spannung | |
+| `33555201` | DC1Strom | |
+| `33555203` | DC1Leistung | |
+| `33555458` | DC2Spannung | |
+| `33555457` | DC2Strom | |
+| `33555459` | DC2Leistung | |
+| `33555714` | DC3Spannung | |
+| `33555713` | DC3Strom | |
+| `33555715` | DC3Leistung | |
+| `33556226` | BatterieSOC | ✓ |
+| `33556227` | BatterieStatus | ✓ |
+| `33556228` | BatterieStrom | ✓ |
+| `33556229` | BatterieSpannung | ✓ |
+| `33556230` | BatterieLeistung | ✓ |
+| `33556238` | BatterieTemp | ✓ |
+| `83886336` | HausverbrauchSolar | ✓ |
+| `83886592` | HausverbrauchBatterie | ✓ |
+| `83886848` | HausverbrauchNetz | ✓ |
+| `83887106` | HausverbrauchPhase1 | ✓ |
+| `83887362` | HausverbrauchPhase2 | ✓ |
+| `83887618` | HausverbrauchPhase3 | ✓ |
+| `67110400` | NetzFrequenz | |
+| `67110656` | NetzCosPhi | |
+| `67110144` | NetzEinspeiselimit | |
+| `67109378` | P1Spannung | |
+| `67109377` | P1Strom | |
+| `67109379` | P1Leistung | |
+| `67109634` | P2Spannung | |
+| `67109633` | P2Strom | |
+| `67109635` | P2Leistung | |
+| `67109890` | P3Spannung | |
+| `67109889` | P3Strom | |
+| `67109891` | P3Leistung | |
+| `167772417` | Analogeingang1 | |
+| `167772673` | Analogeingang2 | |
+| `167772929` | Analogeingang3 | |
+| `167773185` | Analogeingang4 | |
 
 ## License
 
