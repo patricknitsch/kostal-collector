@@ -25,6 +25,22 @@ Linux machine with Docker installed, InfluxDB 2 database
 
 The Docker image supports multiple platforms: `linux/amd64`, `linux/arm64`, `linux/arm/v7`
 
+### Use the image directly with Docker
+
+Pull and start the published image:
+
+```bash
+docker pull ghcr.io/patricknitsch/kostal-collector:latest
+docker run --rm --env-file .env ghcr.io/patricknitsch/kostal-collector:latest
+```
+
+Build and run locally from source:
+
+```bash
+docker build -t kostal-collector:local .
+docker run --rm --env-file .env kostal-collector:local
+```
+
 ## Output
 
 Two output targets are supported:
