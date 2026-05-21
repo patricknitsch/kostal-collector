@@ -1,15 +1,47 @@
 module KostalMetrics
-  DEFAULT_METRICS = [
-    { name: 'ID_DCEingangsleistung', dxs_id: 33_556_736, field: :dc_input_power, type: :float },
-    { name: 'ID_Ausgangsleistung', dxs_id: 67_109_120, field: :ac_output_power, type: :float },
-    { name: 'ID_DC1Leistung', dxs_id: 33_555_203, field: :dc_1_power, type: :float },
-    { name: 'ID_DC2Leistung', dxs_id: 33_555_459, field: :dc_2_power, type: :float },
-    { name: 'ID_DC3Leistung', dxs_id: 33_555_715, field: :dc_3_power, type: :float },
-    { name: 'ID_P1Leistung', dxs_id: 67_109_379, field: :ac_1_power, type: :float },
-    { name: 'ID_P2Leistung', dxs_id: 67_109_635, field: :ac_2_power, type: :float },
-    { name: 'ID_P3Leistung', dxs_id: 67_109_891, field: :ac_3_power, type: :float },
-    { name: 'ID_Status', dxs_id: 16_780_032, field: :status, type: :integer },
+  SUPPORTED_METRICS = [
+    { name: 'ID_DCEingangGesamt', dxs_id: 33_556_736, type: :float },
+    { name: 'ID_Ausgangsleistung', dxs_id: 67_109_120, type: :float },
+    { name: 'ID_Eigenverbrauch', dxs_id: 83_888_128, type: :float },
+    { name: 'ID_Status', dxs_id: 16_780_032, type: :integer },
+    { name: 'ID_Ertrag_d', dxs_id: 251_658_754, type: :float },
+    { name: 'ID_Hausverbrauch_d', dxs_id: 251_659_010, type: :float },
+    { name: 'ID_Eigenverbrauch_d', dxs_id: 251_659_266, type: :float },
+    { name: 'ID_Eigenverbrauchsquote_d', dxs_id: 251_659_278, type: :float },
+    { name: 'ID_Autarkiegrad_d', dxs_id: 251_659_279, type: :float },
+    { name: 'ID_Ertrag_G', dxs_id: 251_658_753, type: :float },
+    { name: 'ID_Hausverbrauch_G', dxs_id: 251_659_009, type: :float },
+    { name: 'ID_Eigenverbrauch_G', dxs_id: 251_659_265, type: :float },
+    { name: 'ID_Eigenverbrauchsquote_G', dxs_id: 251_659_280, type: :float },
+    { name: 'ID_Autarkiegrad_G', dxs_id: 251_659_281, type: :float },
+    { name: 'ID_Betriebszeit', dxs_id: 251_658_496, type: :float },
+    { name: 'ID_DC1Spannung', dxs_id: 33_555_202, type: :float },
+    { name: 'ID_DC1Strom', dxs_id: 33_555_201, type: :float },
+    { name: 'ID_DC1Leistung', dxs_id: 33_555_203, type: :float },
+    { name: 'ID_DC2Spannung', dxs_id: 33_555_458, type: :float },
+    { name: 'ID_DC2Strom', dxs_id: 33_555_457, type: :float },
+    { name: 'ID_DC2Leistung', dxs_id: 33_555_459, type: :float },
+    { name: 'ID_HausverbrauchSolar', dxs_id: 83_886_336, type: :float },
+    { name: 'ID_HausverbrauchBatterie', dxs_id: 83_886_592, type: :float },
+    { name: 'ID_HausverbrauchNetz', dxs_id: 83_886_848, type: :float },
+    { name: 'ID_HausverbrauchPhase1', dxs_id: 83_887_106, type: :float },
+    { name: 'ID_HausverbrauchPhase2', dxs_id: 83_887_362, type: :float },
+    { name: 'ID_HausverbrauchPhase3', dxs_id: 83_887_618, type: :float },
+    { name: 'ID_NetzAusgangLeistung', dxs_id: 67_109_120, type: :float },
+    { name: 'ID_NetzFrequenz', dxs_id: 67_110_400, type: :float },
+    { name: 'ID_NetzCosPhi', dxs_id: 67_110_656, type: :float },
+    { name: 'ID_P1Spannung', dxs_id: 67_109_378, type: :float },
+    { name: 'ID_P1Strom', dxs_id: 67_109_377, type: :float },
+    { name: 'ID_P1Leistung', dxs_id: 67_109_379, type: :float },
+    { name: 'ID_P2Spannung', dxs_id: 67_109_634, type: :float },
+    { name: 'ID_P2Strom', dxs_id: 67_109_633, type: :float },
+    { name: 'ID_P2Leistung', dxs_id: 67_109_635, type: :float },
+    { name: 'ID_P3Spannung', dxs_id: 67_109_890, type: :float },
+    { name: 'ID_P3Strom', dxs_id: 67_109_889, type: :float },
+    { name: 'ID_P3Leistung', dxs_id: 67_109_891, type: :float },
   ].freeze
+
+  EMPTY_METRICS = [].freeze
 
   VALID_TYPES = %i[float integer string boolean].freeze
 
@@ -19,13 +51,9 @@ module KostalMetrics
 
   def from_env
     raw = ENV.fetch('KOSTAL_METRICS', nil)
-    return DEFAULT_METRICS if raw.nil? || raw.strip.empty?
+    return EMPTY_METRICS if raw.nil? || raw.strip.empty?
 
-    overrides = parse_metrics(raw)
-    by_id = overrides.each_with_object({}) { |m, h| h[m[:dxs_id]] = m }
-
-    merged = DEFAULT_METRICS.map { |d| by_id.delete(d[:dxs_id]) || d }
-    merged + by_id.values
+    parse_metrics(raw)
   end
 
   def parse_metrics(raw)

@@ -22,9 +22,14 @@ config = Config.from_env
 config.logger = logger
 
 logger.info "Using Ruby #{RUBY_VERSION} on platform #{RUBY_PLATFORM}"
-logger.info "Pushing to InfluxDB at #{config.influx_url}, " \
-       "bucket #{config.influx_bucket}, " \
-       "measurement #{config.influx_measurement}"
+if config.influx_output?
+  logger.info "Pushing to InfluxDB at #{config.influx_url}, " \
+         "bucket #{config.influx_bucket}, " \
+         "measurement #{config.influx_measurement}"
+else
+  logger.info "Pushing to MQTT at #{config.mqtt_host}:#{config.mqtt_port}, " \
+         "prefix #{config.mqtt_topic_prefix}, retain=#{config.mqtt_retain}"
+end
 logger.info "Pulling from Kostal at #{config.base_url} every #{config.interval}s"
 logger.info "\n"
 

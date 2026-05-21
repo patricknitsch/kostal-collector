@@ -5,6 +5,9 @@ GEM
     diff-lcs (1.6.2)
     influxdb-client (3.2.0)
       csv
+    logger (1.7.0)
+    mqtt (0.7.0)
+      logger
     rspec (3.13.2)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -25,13 +28,16 @@ PLATFORMS
 
 DEPENDENCIES
   influxdb-client
+  mqtt
   rspec
 
 CHECKSUMS
-  bundler (4.0.11) sha256=5bcec0fb78302e48d02ee46f10ee6e6942be647ba5b44a6d1ddfda9a240ce785
+  bundler (4.0.12) sha256=7f8b757d28dfb636e7b24fba2344ac6dd13b5b24f4b46d62573d483f211825ac
   csv (3.3.5) sha256=6e5134ac3383ef728b7f02725d9872934f523cb40b961479f69cf3afa6c8e73f
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
   influxdb-client (3.2.0) sha256=dc1e8ec80542f64c9f31af6d9bfa4c147474bf32b9179a7f0cab970793b8e1f2
+  logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
+  mqtt (0.7.0) sha256=52c139253b738408133a68ab8d19144a17a5934ad8c0ba6d906f899a9737de3b
   rspec (3.13.2) sha256=206284a08ad798e61f86d7ca3e376718d52c0bc944626b2349266f239f820587
   rspec-core (3.13.6) sha256=a8823c6411667b60a8bca135364351dda34cd55e44ff94c4be4633b37d828b2d
   rspec-expectations (3.13.5) sha256=33a4d3a1d95060aea4c94e9f237030a8f9eae5615e9bd85718fe3a09e4b58836
@@ -39,4 +45,4 @@ CHECKSUMS
   rspec-support (3.13.7) sha256=0640e5570872aafefd79867901deeeeb40b0c9875a36b983d85f54fb7381c47c
 
 BUNDLED WITH
-  4.0.11
+  4.0.12
