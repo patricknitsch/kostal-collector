@@ -29,7 +29,6 @@ DEFAULTS = {
   protocol: 'http',
   port: 80,
   interval: 10,
-  metrics: KostalMetrics::EMPTY_METRICS,
   output: 'influxdb',
   influx_schema: 'http',
   influx_host: 'influxdb',
@@ -48,13 +47,16 @@ Config = Struct.new(*KEYS, keyword_init: true) do
   end
 
   def self.from_env(**)
+    output = ENV.fetch('OUTPUT_TARGET', 'influxdb')
+    metrics = output == 'mqtt' ? KostalMetrics::SUPPORTED_METRICS : KostalMetrics.from_env
+
     env_options = {
       host: ENV.fetch('KOSTAL_HOST', nil),
       protocol: ENV.fetch('KOSTAL_PROTOCOL', nil),
       port: ENV.fetch('KOSTAL_PORT', nil),
       interval: ENV.fetch('KOSTAL_INTERVAL', nil),
-      metrics: KostalMetrics.from_env,
-      output: ENV.fetch('OUTPUT_TARGET', nil),
+      metrics:,
+      output:,
       influx_schema: ENV.fetch('INFLUX_SCHEMA', nil),
       influx_host: ENV.fetch('INFLUX_HOST', nil),
       influx_port: ENV.fetch('INFLUX_PORT', nil),
