@@ -10,7 +10,11 @@ def build_config(**overrides)
     protocol: 'http',
     port: 80,
     interval: 10,
-    metrics: KostalMetrics::DEFAULT_METRICS,
+    metrics: [
+      { name: 'ID_Ausgangsleistung', dxs_id: 67_109_120, field: :ac_output_power, type: :float },
+      { name: 'ID_Status', dxs_id: 16_780_032, field: :status, type: :integer },
+    ],
+    output: 'influxdb',
     influx_schema: 'http',
     influx_host: 'influxdb',
     influx_port: 8086,

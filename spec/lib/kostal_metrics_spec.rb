@@ -41,38 +41,26 @@ describe KostalMetrics do
 
   describe '.from_env' do
     context 'without KOSTAL_METRICS set' do
-      it 'returns DEFAULT_METRICS' do
-        expect(described_class.from_env).to eq(described_class::DEFAULT_METRICS)
+      it 'returns an empty list' do
+        expect(described_class.from_env).to eq(described_class::EMPTY_METRICS)
       end
     end
 
-    context 'with KOSTAL_METRICS overriding one default entry' do
+    context 'with KOSTAL_METRICS set' do
       around do |example|
-        ENV['KOSTAL_METRICS'] = '33556736:my_power:float'
+        ENV['KOSTAL_METRICS'] = '33556736:my_power:float 16780032:my_status:integer'
         example.run
         ENV.delete('KOSTAL_METRICS')
       end
 
-      it 'merges override with remaining defaults' do
+      it 'uses exactly configured metrics' do
         metrics = described_class.from_env
-        expect(metrics.length).to eq(described_class::DEFAULT_METRICS.length)
-        overridden = metrics.find { |m| m[:dxs_id] == 33_556_736 }
-        expect(overridden).to eq(name: 'my_power', dxs_id: 33_556_736, field: :my_power, type: :float)
-        expect(metrics.map { |m| m[:dxs_id] }).to include(67_109_120, 16_780_032)
-      end
-    end
-
-    context 'with KOSTAL_METRICS adding a new dxs_id' do
-      around do |example|
-        ENV['KOSTAL_METRICS'] = '99999999:extra_field:integer'
-        example.run
-        ENV.delete('KOSTAL_METRICS')
-      end
-
-      it 'appends the new entry after defaults' do
-        metrics = described_class.from_env
-        expect(metrics.length).to eq(described_class::DEFAULT_METRICS.length + 1)
-        expect(metrics.last).to eq(name: 'extra_field', dxs_id: 99_999_999, field: :extra_field, type: :integer)
+        expect(metrics).to eq(
+          [
+            { name: 'my_power', dxs_id: 33_556_736, field: :my_power, type: :float },
+            { name: 'my_status', dxs_id: 16_780_032, field: :my_status, type: :integer },
+          ],
+        )
       end
     end
 
@@ -101,26 +89,33 @@ describe KostalMetrics do
     end
   end
 
-  describe 'DEFAULT_METRICS' do
-    it 'contains all required IDs' do
-      names = described_class::DEFAULT_METRICS.map { |metric| metric[:name] }
-
-      expect(names).to include(
-        'ID_DCEingangsleistung',
-        'ID_Ausgangsleistung',
-        'ID_DC1Leistung',
-        'ID_DC2Leistung',
-        'ID_DC3Leistung',
-        'ID_P1Leistung',
-        'ID_P2Leistung',
-        'ID_P3Leistung',
-        'ID_Status',
+  describe 'SUPPORTED_METRICS' do
+    it 'contains configured IDs from the extended adapter list' do
+      ids = described_class::SUPPORTED_METRICS.map { |metric| metric[:dxs_id] }
+      expect(ids).to include(
+        33_556_736,
+        67_109_120,
+        83_888_128,
+        16_780_032,
+        251_658_754,
+        251_659_010,
+        251_659_266,
+        251_659_278,
+        251_659_279,
+        251_658_753,
+        251_659_009,
+        251_659_265,
+        251_659_280,
+        251_659_281,
+        251_658_496,
+        67_110_400,
+        67_110_656,
       )
     end
 
-    it 'defines field and type for all metrics' do
-      described_class::DEFAULT_METRICS.each do |metric|
-        expect(metric).to include(:field, :type)
+    it 'defines a type for all supported metrics' do
+      described_class::SUPPORTED_METRICS.each do |metric|
+        expect(metric).to include(:type)
       end
     end
   end

@@ -6,6 +6,7 @@ require 'kostal_metrics'
 class KostalClient
   OPEN_TIMEOUT = 5
   READ_TIMEOUT = 10
+  BATCH_SIZE = 10
 
   def initialize(config:, http_get: nil)
     @config = config
@@ -13,18 +14,13 @@ class KostalClient
   end
 
   def fetch
-    logger.info "Fetching from #{uri}"
-    response = http_get.call(uri)
-    code = response.code.to_i
-    unless code.between?(200, 299)
-      raise "Unexpected response from Kostal API: #{response.code} - #{response.body}"
+    metrics = config.metrics
+    batches = metrics.each_slice(BATCH_SIZE).to_a
+    logger.info "Fetching #{metrics.size} metrics in #{batches.size} batch(es) from #{config.base_url}"
+
+    batches.each_with_object({}) do |batch, result|
+      result.merge!(fetch_batch(batch))
     end
-
-    logger.info "Kostal responded: HTTP #{response.code}"
-    payload = JSON.parse(response.body)
-    entries = payload.fetch('dxsEntries', [])
-
-    KostalMetrics.to_lookup(config.metrics, entries)
   end
 
   private
@@ -35,8 +31,23 @@ class KostalClient
     config.logger
   end
 
-  def uri
-    query = config.metrics.map { |m| "dxsEntries=#{m.fetch(:dxs_id)}" }.join('&')
+  def fetch_batch(metrics)
+    u = batch_uri(metrics)
+    response = http_get.call(u)
+    code = response.code.to_i
+    unless code.between?(200, 299)
+      raise "Unexpected response from Kostal API: #{response.code} - #{response.body}"
+    end
+
+    logger.info "Kostal responded: HTTP #{response.code} (#{metrics.size} entries)"
+    payload = JSON.parse(response.body)
+    entries = payload.fetch('dxsEntries', [])
+
+    KostalMetrics.to_lookup(metrics, entries)
+  end
+
+  def batch_uri(metrics)
+    query = metrics.map { |m| "dxsEntries=#{m.fetch(:dxs_id)}" }.join('&')
     URI("#{config.base_url}/api/dxs.json?#{query}")
   end
 

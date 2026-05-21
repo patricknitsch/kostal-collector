@@ -1,6 +1,7 @@
 require 'forwardable'
 require 'influx_push'
 require 'kostal_pull'
+require 'mqtt_push'
 
 class Loop
   extend Forwardable
@@ -22,7 +23,7 @@ class Loop
 
   def start
     self.queue = Queue.new
-    return unless influx_ready?(max_wait)
+    return unless output_ready?(max_wait)
 
     pull_thread = Thread.new { pull_loop }
     push_thread = Thread.new { push_loop }
@@ -50,11 +51,11 @@ class Loop
     logger.error "Error getting data from Kostal: #{e.message}"
   end
 
-  def influx_ready?(max_wait)
-    logger.info 'Wait until InfluxDB is ready ...', newline: false
+  def output_ready?(max_wait)
+    logger.info "Wait until #{output_name} is ready ...", newline: false
 
     count = 0
-    until (ready = influx_push.ready?) || (max_wait && count >= max_wait)
+    until (ready = push_target.ready?) || (max_wait && count >= max_wait)
       logger.info '.', newline: false
       count += 1
       sleep 5
@@ -65,13 +66,13 @@ class Loop
       logger.info ''
       true
     else
-      logger.error "\nInfluxDB not ready after #{count * 5} seconds - aborting."
+      logger.error "\n#{output_name} not ready after #{count * 5} seconds - aborting."
       false
     end
   end
 
   def push_loop
-    influx_push.run
+    push_target.run
   end
 
   def close_queue
@@ -79,15 +80,24 @@ class Loop
       pending = queue.size
       break if pending.zero?
 
-      logger.info "Waiting for #{pending} records to be pushed to InfluxDB"
+      logger.info "Waiting for #{pending} records to be pushed to #{output_name}"
       sleep 1
     end
 
     queue.close
   end
 
-  def influx_push
-    @influx_push ||= InfluxPush.new(config:, queue:)
+  def push_target
+    @push_target ||=
+      if config.mqtt_output?
+        MqttPush.new(config:, queue:)
+      else
+        InfluxPush.new(config:, queue:)
+      end
+  end
+
+  def output_name
+    config.mqtt_output? ? 'MQTT broker' : 'InfluxDB'
   end
 
   def kostal_pull

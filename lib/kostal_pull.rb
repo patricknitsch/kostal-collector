@@ -13,8 +13,18 @@ class KostalPull
   attr_reader :config, :queue, :client, :count
 
   def next
+    if config.metrics.empty?
+      logger.info 'No metrics configured via KOSTAL_METRICS - skipping poll cycle.'
+      return
+    end
+
     values_by_name = client.fetch
     fields = KostalMetrics.to_influx_fields(config.metrics, values_by_name)
+    if fields.empty?
+      logger.info 'No configured fields found in API response - skipping publish.'
+      return
+    end
+
     @count += 1
     record = KostalRecord.new(@count, { measure_time: Time.now.to_i, **fields })
     queue << record
