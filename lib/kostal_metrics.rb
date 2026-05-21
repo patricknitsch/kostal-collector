@@ -26,6 +26,9 @@ module KostalMetrics
     { name: 'DC2Spannung',            dxs_id: 33_555_458,  field: :DC2Spannung,            type: :float },
     { name: 'DC2Strom',               dxs_id: 33_555_457,  field: :DC2Strom,               type: :float },
     { name: 'DC2Leistung',            dxs_id: 33_555_459,  field: :DC2Leistung,            type: :float },
+    { name: 'DC3Spannung',            dxs_id: 67_109_890,  field: :DC3Spannung,            type: :float },
+    { name: 'DC3Strom',               dxs_id: 67_109_889,  field: :DC3Strom,               type: :float },
+    { name: 'DC3Leistung',            dxs_id: 67_109_891,  field: :DC3Leistung,            type: :float },
     # Momentanwerte Haus
     { name: 'HausverbrauchSolar',     dxs_id: 83_886_336,  field: :HausverbrauchSolar,     type: :float },
     { name: 'HausverbrauchBatterie',  dxs_id: 83_886_592,  field: :HausverbrauchBatterie,  type: :float },
