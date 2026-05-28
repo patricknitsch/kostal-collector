@@ -11,8 +11,6 @@ updates:
     allow:
       - dependency-type: direct
       - dependency-type: indirect
-    labels:
-      - 'dependencies'
     groups:
       rspec:
         patterns:
@@ -25,5 +23,3 @@ updates:
       interval: daily
       time: '03:30'
       timezone: Europe/Berlin
-    labels:
-      - 'dependencies'
