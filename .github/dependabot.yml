@@ -1,0 +1,29 @@
+version: 2
+updates:
+  - package-ecosystem: bundler
+    directory: '/'
+    schedule:
+      interval: cron
+      cronjob: '30 3 * * *'
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 10
+    versioning-strategy: lockfile-only
+    allow:
+      - dependency-type: direct
+      - dependency-type: indirect
+    labels:
+      - 'dependencies'
+    groups:
+      rspec:
+        patterns:
+          - 'rspec'
+          - 'rspec-*'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: cron
+      cronjob: '30 3 * * *'
+      timezone: Europe/Berlin
+    labels:
+      - 'dependencies'
